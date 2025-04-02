@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.1.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 info:
@@ -7,6 +7,7 @@ info:
 paths:
   /climate:
     get:
+    operationId: getClimateData
       summary: Get climate data by coordinates
       parameters:
         - in: query
