@@ -1,4 +1,6 @@
 openapi: 3.0.0
+servers:
+  - url: https://agrar-gpt-api.onrender.com
 info:
   title: Climate API
   version: 1.0.0
