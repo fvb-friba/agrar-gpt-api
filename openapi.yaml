@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  title: Climate API
-  version: 1.0.0
+  title: Agrar GPT API
+  version: 1.1.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
@@ -41,3 +41,27 @@ paths:
                         type: number
                       10y_precip_change:
                         type: number
+  /value:
+    get:
+      operationId: getLandValue
+      summary: Get land value by district name or code
+      parameters:
+        - in: query
+          name: landkreis
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Land value data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  landkreis:
+                    type: string
+                  preise_eur_ha:
+                    type: object
+                    additionalProperties:
+                      type: number

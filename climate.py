@@ -1,5 +1,4 @@
 def get_climate_data(lat: float, lon: float):
-    # Beispielhafte, statisch simulierte DWD-Daten
     return {
         "temperature_avg": 9.3,
         "precipitation_mm": 735,
