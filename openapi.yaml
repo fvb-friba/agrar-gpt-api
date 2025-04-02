@@ -1,0 +1,40 @@
+openapi: 3.0.0
+info:
+  title: Climate API
+  version: 1.0.0
+paths:
+  /climate:
+    get:
+      summary: Get climate data by coordinates
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: lon
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Climate data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temperature_avg:
+                    type: number
+                  precipitation_mm:
+                    type: number
+                  vegetation_period_days:
+                    type: integer
+                  trend:
+                    type: object
+                    properties:
+                      10y_temp_rise:
+                        type: number
+                      10y_precip_change:
+                        type: number
