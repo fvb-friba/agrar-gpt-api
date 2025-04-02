@@ -1,14 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API
-  version: 1.1.0
+  title: Agrar GPT API (Real Data)
+  version: 1.2.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
   /climate:
     get:
       operationId: getClimateData
-      summary: Get climate data by coordinates
+      summary: Get real climate data by coordinates
       parameters:
         - in: query
           name: lat
@@ -22,7 +22,7 @@ paths:
             type: number
       responses:
         '200':
-          description: Climate data response
+          description: Real climate data
           content:
             application/json:
               schema:
@@ -44,7 +44,7 @@ paths:
   /value:
     get:
       operationId: getLandValue
-      summary: Get land value by district name or code
+      summary: Get real land value data by district name
       parameters:
         - in: query
           name: landkreis
