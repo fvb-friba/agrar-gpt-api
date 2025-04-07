@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API (Real Climate)
+  title: Agrar GPT API – Full Climate Data
   version: 1.0.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
@@ -8,7 +8,7 @@ paths:
   /climate:
     get:
       operationId: getClimateData
-      summary: Get real climate data by coordinates (Open-Meteo)
+      summary: Get detailed real climate data (Open-Meteo)
       parameters:
         - in: query
           name: lat
@@ -22,7 +22,7 @@ paths:
             type: number
       responses:
         '200':
-          description: Climate data response
+          description: Full climate data
           content:
             application/json:
               schema:
@@ -30,9 +30,17 @@ paths:
                 properties:
                   temperature_avg:
                     type: number
+                  temperature_min:
+                    type: number
+                  temperature_max:
+                    type: number
                   precipitation_mm:
                     type: number
-                  vegetation_period_days:
+                  wind_speed_max:
+                    type: number
+                  sunshine_hours:
+                    type: number
+                  vegetation_days_estimate:
                     type: integer
                   trend:
                     type: object
