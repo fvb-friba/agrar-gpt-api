@@ -1,10 +1,11 @@
 import requests
 import csv
 from io import StringIO
+from urllib.parse import quote
 from fastapi import HTTPException
 
 # GENESIS API-Zugangsdaten
-USERNAME = "f.vonbraunschweig@friba-investment.com"
+USERNAME = quote("f.vonbraunschweig@friba-investment.com")
 PASSWORD = "49efaedd2eb84800a34f4bca2045ea71"
 BASE_URL = "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
 
