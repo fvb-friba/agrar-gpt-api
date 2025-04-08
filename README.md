@@ -1,9 +1,7 @@
-# Agrar GPT API – mit Destatis Anbindung (Kaufpreise)
+# Agrar GPT API – mit Boden-Endpunkt
 
-## Endpunkte
-- `/climate?lat=...&lon=...`
-- `/value?landkreis=Heidekreis`
+## Endpunkt
+- `/soil?lat=...&lon=...`
 
-## Quelle
-- Tabelle 61111-0001 über GENESIS Webservice
-- API-Key: verwendet für produktiven Zugriff
+## Liefert
+- Bodenart, Acker- und Grünlandzahl, Bonitätsklasse und Bodenpunkte (BGR-basiert, vereinfacht)
