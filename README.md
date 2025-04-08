@@ -1,12 +1,12 @@
-# Agrar GPT API – /soil-Endpunkt mit BÜK200-WMS
+# INSPIRE Soil API-Endpunkt für AgrarGPT
 
 ## Endpunkt:
 GET /soil?lat=...&lon=...
 
 ## Quelle:
-BGR WMS BÜK200 – via GetFeatureInfo mit HTML Parsing
+INSPIRE Soil WFS (GDI-DE / BGR)
 
 ## Ausgabe:
-- Bodenart
-- Textur
-- Bodenklasse
+- soil_unit (Bodeneinheit)
+- parent_material (Ausgangsmaterial)
+- land_use (Nutzung)
