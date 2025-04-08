@@ -31,7 +31,7 @@ def fetch_value_data(ags: str) -> dict:
         "language": "de"
     }
     
-    url = f"{GENESIS_BASE_URL}/table"
+    url = f"{GENESIS_BASE_URL}/value"
     
     print(f"GENESIS Request URL: {url}")
     print(f"GENESIS Params: {params}")
