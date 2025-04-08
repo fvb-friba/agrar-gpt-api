@@ -1,7 +1,6 @@
 from fastapi import FastAPI
+from app.api import soil
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "AgrarGPT API läuft."}
+app.include_router(soil.router)
