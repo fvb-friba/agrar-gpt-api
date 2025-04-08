@@ -1,7 +1,11 @@
-# Agrar GPT API – mit Boden-Endpunkt
+# Agrar GPT API – mit echter Bodenanbindung (BGR)
 
 ## Endpunkt
 - `/soil?lat=...&lon=...`
 
-## Liefert
-- Bodenart, Acker- und Grünlandzahl, Bonitätsklasse und Bodenpunkte (BGR-basiert, vereinfacht)
+## Quelle
+- BÜK200 & BODEN-DÜS via BGR WMS
+
+## Validierung
+- Fehleingaben (außerhalb Deutschlands) → 400
+- Kein Bodeneintrag an Punkt → 404
