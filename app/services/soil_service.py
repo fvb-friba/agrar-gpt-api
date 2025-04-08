@@ -7,13 +7,11 @@ logger = get_logger("soil")
 
 WMS_URL = "https://services.bgr.de/wms/boden/buek200/"
 CRS = "EPSG:25832"
-INFO_FORMAT = "text/plain"
+INFO_FORMAT = "text/xml"
 IMG_SIZE = 256
 
-# XML-Datei lokal einbinden
 CAPABILITIES_XML_PATH = os.path.join(os.path.dirname(__file__), "bgr_capabilities.xml")
 
-# Globale Liste für Layerdefinitionen
 LAYER_DEFINITIONS = []
 
 def load_layer_definitions(xml_path: str):
@@ -88,16 +86,16 @@ def fetch_soil_info(easting: float, northing: float) -> dict:
             response = requests.get(WMS_URL, params=params, timeout=10)
             response.raise_for_status()
 
-            if "Feature" in response.text and "BKZ" in response.text:
-                bkz = extract_attribute(response.text, "BKZ")
-                bez = extract_attribute(response.text, "BEZ")
+            if "<" in response.text and "Feature" in response.text:
+                bkz = extract_xml_attribute(response.text, "BKZ")
+                bez = extract_xml_attribute(response.text, "BEZ")
                 return {
                     "bkz": bkz,
                     "bez": bez,
                     "raw_response": response.text
                 }
             else:
-                logger.warning(f"Leere Antwort – nächste BBOX-Stufe. Inhalt: {response.text[:200]}")
+                logger.warning(f"Leere XML-Antwort – neue BBOX. Inhalt: {response.text[:200]}")
                 bbox_size *= 2
 
         except Exception as e:
@@ -105,8 +103,12 @@ def fetch_soil_info(easting: float, northing: float) -> dict:
 
     raise ValueError("Keine gültige Bodeninformation abrufbar.")
 
-def extract_attribute(text: str, key: str) -> str:
-    for line in text.splitlines():
-        if key in line:
-            return line.split("=")[-1].strip()
+def extract_xml_attribute(xml_text: str, key: str) -> str:
+    try:
+        root = ET.fromstring(xml_text)
+        for elem in root.iter():
+            if elem.tag.endswith("Attribute") and elem.attrib.get("name") == key:
+                return elem.text.strip()
+    except ET.ParseError as e:
+        logger.error(f"Fehler beim Parsen der XML-Antwort: {e}")
     return "-"
