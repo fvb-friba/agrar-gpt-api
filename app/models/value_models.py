@@ -1,18 +1,20 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
+# app/api/value.py
 
-class ValueRequest(BaseModel):
-    regionalschluessel: Optional[str] = Field(None, description="AGS-Regionalschlüssel (z. B. 05315 für Duisburg)")
-    easting: Optional[float] = Field(None, description="Easting in EPSG:25832")
-    northing: Optional[float] = Field(None, description="Northing in EPSG:25832")
+from fastapi import APIRouter, HTTPException, Query
+from app.services.value_service import fetch_land_value_by_regionalkey
 
-class ValueYearData(BaseModel):
-    year: int
-    avg_price_eur_per_ha: float
-    num_cases: Optional[int]
+router = APIRouter()
 
-class ValueResponse(BaseModel):
-    region: str
-    ags: str
-    unit: str
-    years: List[ValueYearData]
+@router.get("/value")
+def get_land_value_data(
+    regionalkey: str = Query(..., description="Dreistelliger Schlüssel des Regierungsbezirks (z. B. '051')"),
+    start_year: int = Query(2013, ge=2000, le=2099),
+    end_year: int = Query(2023, ge=2000, le=2099)
+):
+    """
+    API-Endpunkt für landwirtschaftliche Kaufpreise auf Regierungsbezirksebene.
+    """
+    try:
+        return fetch_land_value_by_regionalkey(regionalkey, start_year, end_year)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
