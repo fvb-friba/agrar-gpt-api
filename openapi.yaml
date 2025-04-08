@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – Climate with Trends
-  version: 1.1.0
+  title: Agrar GPT API – Climate & Value
+  version: 1.2.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
@@ -49,3 +49,27 @@ paths:
                         type: number
                       10y_precip_change:
                         type: number
+  /value:
+    get:
+      operationId: getLandValue
+      summary: Get official land value by district name
+      parameters:
+        - in: query
+          name: landkreis
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Land value data from Destatis GENESIS API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  landkreis:
+                    type: string
+                  preise_eur_ha:
+                    type: object
+                    additionalProperties:
+                      type: number

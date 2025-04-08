@@ -1,8 +1,9 @@
-# Agrar GPT API – mit Echtzeit- und Trenddaten (Open-Meteo)
+# Agrar GPT API – mit Destatis Anbindung (Kaufpreise)
 
-## Endpunkt
+## Endpunkte
 - `/climate?lat=...&lon=...`
+- `/value?landkreis=Heidekreis`
 
-## Liefert
-- 7-Tage-Vorhersage (Temperatur, Niederschlag, Wind, Sonne)
-- Trenddaten (10 Jahre) aus Open-Meteo Reanalysis (ERA5)
+## Quelle
+- Tabelle 61111-0001 über GENESIS Webservice
+- API-Key: verwendet für produktiven Zugriff

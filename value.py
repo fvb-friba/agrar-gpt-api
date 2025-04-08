@@ -3,29 +3,41 @@ import csv
 from io import StringIO
 from fastapi import HTTPException
 
+# GENESIS API-Zugangsdaten
+USERNAME = "f.vonbraunschweig@friba-investment.com"
+PASSWORD = "49efaedd2eb84800a34f4bca2045ea71"
+BASE_URL = "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+
 def get_land_value(landkreis: str):
     try:
-        # Quelle: https://www-genesis.destatis.de/genesis/online
-        # Wir verwenden Tabelle 61111-01-01-4 (flächenspez. Kaufwerte, je Bundesland)
-        url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/61111-01-01-4.csv"
-        response = requests.get(url)
+        params = {
+            "username": USERNAME,
+            "password": PASSWORD,
+            "name": "61111-0001",
+            "format": "csv",
+            "area": "all",
+            "compress": "false"
+        }
+        response = requests.get(BASE_URL, params=params)
         response.raise_for_status()
 
-        content = response.content.decode("utf-8")
-        csv_reader = csv.reader(StringIO(content), delimiter=";")
+        content = response.content.decode("utf-8", errors="replace")
+        reader = csv.reader(StringIO(content), delimiter=';')
 
         result = {}
-        for row in csv_reader:
+        for row in reader:
+            if len(row) < 3:
+                continue
             if landkreis.lower() in row[0].lower():
                 try:
                     jahr = row[1].strip()
-                    preis = float(row[2].strip().replace(",", "."))
+                    preis = float(row[2].replace(",", "."))
                     result[jahr] = preis
                 except:
                     continue
 
         if not result:
-            raise HTTPException(status_code=404, detail="Keine echten Daten gefunden.")
+            raise HTTPException(status_code=404, detail="Keine Kaufpreisdaten gefunden.")
 
         return {
             "landkreis": landkreis,
