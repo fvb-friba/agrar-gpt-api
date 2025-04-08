@@ -36,26 +36,20 @@ def get_soil_data(lat: float, lon: float):
             response = requests.get(base_url, params=params, timeout=10)
             response.raise_for_status()
 
-            print(f"📍 BBOX Radius: {bbox_halfsize} m")
-            print("🔎 HTML-Antwort (Ausschnitt):")
-            print(response.text[:500])
+            soup = BeautifulSoup(response.text, "html.parser")
+            rows = soup.find_all("tr")
+            output = {}
+            for row in rows:
+                cols = row.find_all("td")
+                if len(cols) == 2:
+                    key = cols[0].text.strip()
+                    value = cols[1].text.strip()
+                    output[key] = value
+            if output:
+                output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
+                return output
 
-            if "table" in response.text.lower() or "tr" in response.text.lower():
-                soup = BeautifulSoup(response.text, "html.parser")
-                rows = soup.find_all("tr")
-                output = {}
-                for row in rows:
-                    cols = row.find_all("td")
-                    if len(cols) == 2:
-                        key = cols[0].text.strip()
-                        value = cols[1].text.strip()
-                        output[key] = value
-                if output:
-                    output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
-                    return output
-
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Fehler bei BBOX {bbox_halfsize} m: {e}")
+        except requests.exceptions.RequestException:
             continue
 
-    raise HTTPException(status_code=404, detail="Keine Bodendaten an dieser Position gefunden (auch nach mehrfacher Abfrage mit größerem Radius).")
+    raise HTTPException(status_code=404, detail="Keine Bodendaten an dieser Position gefunden.")

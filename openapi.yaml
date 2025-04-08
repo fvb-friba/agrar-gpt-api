@@ -1,14 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – BGR Soil WMS (Debug-Version)
-  version: 1.0.3
+  title: Agrar GPT API – Soil BUEK200 WMS
+  version: 1.0.4
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Debug soil data via BGR WMS with HTML logging
+      summary: Get soil data from BGR BUEK200 WMS
       parameters:
         - in: query
           name: lat
