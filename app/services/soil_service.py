@@ -10,7 +10,7 @@ INFO_FORMAT = "text/plain"
 IMG_SIZE = 256
 
 def fetch_soil_info(easting: float, northing: float) -> dict:
-    bbox_size = 500  # Startwert für dynamische BBOX
+    bbox_size = 500
     retries = 3
 
     for attempt in range(retries):
