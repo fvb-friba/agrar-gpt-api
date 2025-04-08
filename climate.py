@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 def get_climate_data(lat: float, lon: float):
     try:
+        # === 7-Tage-Vorhersage ===
         start = date.today()
         end = start + timedelta(days=6)
 
@@ -35,6 +36,7 @@ def get_climate_data(lat: float, lon: float):
         wind_speed_max = round(max(forecast_data["wind_speed_10m_max"]), 1)
         sunshine_hours = round(sum(forecast_data["sunshine_duration"]) / 60, 1)
 
+        # === Trenddaten + Vegetationsperiode (Reanalysis) ===
         archive_response = requests.get(
             "https://archive-api.open-meteo.com/v1/archive",
             params={
@@ -42,13 +44,14 @@ def get_climate_data(lat: float, lon: float):
                 "longitude": lon,
                 "start_date": "2014-01-01",
                 "end_date": "2023-12-31",
-                "daily": "temperature_2m_max,precipitation_sum",
+                "daily": "temperature_2m_max,precipitation_sum,temperature_2m_mean",
                 "timezone": "Europe/Berlin"
             }
         )
         archive_response.raise_for_status()
         archive_data = archive_response.json()["daily"]
 
+        # Trenddaten (wie bisher)
         years = [int(d.split("-")[0]) for d in archive_data["time"]]
         year_data = {}
         for i, year in enumerate(years):
@@ -68,6 +71,27 @@ def get_climate_data(lat: float, lon: float):
         temp_trend = year_avgs[years_sorted[-1]]["temp"] - year_avgs[years_sorted[0]]["temp"]
         prec_trend = ((year_avgs[years_sorted[-1]]["prec"] / year_avgs[years_sorted[0]]["prec"]) - 1) * 100
 
+        # Vegetationsperiode (2023)
+        veg_start = None
+        veg_end = None
+        mean_temps = [
+            (i, t) for i, (d, t) in enumerate(zip(archive_data["time"], archive_data["temperature_2m_mean"]))
+            if d.startswith("2023")
+        ]
+        for i in range(len(mean_temps) - 5):
+            # Start: 5 aufeinanderfolgende Tage mit ≥ 5 °C
+            if all(mean_temps[j][1] >= 5 for j in range(i, i + 5)):
+                veg_start = i
+                break
+        for i in range(len(mean_temps) - 1, 4, -1):
+            if all(mean_temps[j][1] < 5 for j in range(i - 4, i + 1)):
+                veg_end = i
+                break
+        if veg_start is not None and veg_end is not None and veg_end > veg_start:
+            vegetation_days = veg_end - veg_start
+        else:
+            vegetation_days = 205  # fallback
+
         return {
             "temperature_avg": temperature_avg,
             "temperature_min": temperature_min,
@@ -75,7 +99,7 @@ def get_climate_data(lat: float, lon: float):
             "precipitation_mm": precipitation_mm,
             "wind_speed_max": wind_speed_max,
             "sunshine_hours": sunshine_hours,
-            "vegetation_days_estimate": 205,
+            "vegetation_days_estimate": vegetation_days,
             "trend": {
                 "10y_temp_rise": round(temp_trend, 2),
                 "10y_precip_change": round(prec_trend, 1)
