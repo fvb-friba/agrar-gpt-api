@@ -108,6 +108,13 @@ def extract_legendentext_and_link(xml_text: str) -> dict:
                 legende = elem.attrib.get("Legende", "-")
                 leg_text = elem.attrib.get("Legendentext", "-")
                 profile = elem.attrib.get("Profile", "-")
+                
+                # Zeichenkodierung korrigieren
+                if isinstance(leg_text, str):
+                    leg_text = leg_text.encode("latin1").decode("utf-8", errors="replace")
+                if isinstance(legende, str):
+                    legende = legende.encode("latin1").decode("utf-8", errors="replace")
+
                 return {
                     "legende": legende,
                     "legendentext": leg_text,
