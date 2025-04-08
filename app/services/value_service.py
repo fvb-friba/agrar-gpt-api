@@ -24,7 +24,6 @@ def fetch_value_data(ags: str) -> dict:
     params = {
         "username": GENESIS_USERNAME,
         "name": TABLE_CODE,
-        "bereich": "allgemein",
         "format": "json",
         "startjahr": str(start_year),
         "endjahr": str(end_year),
