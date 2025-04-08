@@ -11,7 +11,6 @@ INFO_FORMAT = "text/xml"
 IMG_SIZE = 256
 
 CAPABILITIES_XML_PATH = os.path.join(os.path.dirname(__file__), "bgr_capabilities.xml")
-
 LAYER_DEFINITIONS = []
 
 def load_layer_definitions(xml_path: str):
@@ -86,12 +85,10 @@ def fetch_soil_info(easting: float, northing: float) -> dict:
             response = requests.get(WMS_URL, params=params, timeout=10)
             response.raise_for_status()
 
-            if "<" in response.text and "Feature" in response.text:
-                bkz = extract_xml_attribute(response.text, "BKZ")
-                bez = extract_xml_attribute(response.text, "BEZ")
+            if "<" in response.text and "FeatureInfoResponse" in response.text:
+                parsed = extract_legendentext_and_link(response.text)
                 return {
-                    "bkz": bkz,
-                    "bez": bez,
+                    **parsed,
                     "raw_response": response.text
                 }
             else:
@@ -103,12 +100,23 @@ def fetch_soil_info(easting: float, northing: float) -> dict:
 
     raise ValueError("Keine gültige Bodeninformation abrufbar.")
 
-def extract_xml_attribute(xml_text: str, key: str) -> str:
+def extract_legendentext_and_link(xml_text: str) -> dict:
     try:
         root = ET.fromstring(xml_text)
         for elem in root.iter():
-            if elem.tag.endswith("Attribute") and elem.attrib.get("name") == key:
-                return elem.text.strip()
+            if elem.tag.endswith("FIELDS"):
+                legende = elem.attrib.get("Legende", "-")
+                leg_text = elem.attrib.get("Legendentext", "-")
+                profile = elem.attrib.get("Profile", "-")
+                return {
+                    "legende": legende,
+                    "legendentext": leg_text,
+                    "profil_url": profile
+                }
     except ET.ParseError as e:
         logger.error(f"Fehler beim Parsen der XML-Antwort: {e}")
-    return "-"
+    return {
+        "legende": "-",
+        "legendentext": "-",
+        "profil_url": "-"
+    }
