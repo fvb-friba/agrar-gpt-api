@@ -1,14 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – BGR Soil via WMS (mit dynamischem Radius)
-  version: 1.0.2
+  title: Agrar GPT API – BGR Soil WMS (Debug-Version)
+  version: 1.0.3
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Get soil data from BGR WMS with automatic BBOX scaling
+      summary: Debug soil data via BGR WMS with HTML logging
       parameters:
         - in: query
           name: lat

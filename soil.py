@@ -4,7 +4,6 @@ from pyproj import Transformer
 from bs4 import BeautifulSoup
 
 def get_soil_data(lat: float, lon: float):
-    # Transformiere von WGS84 zu EPSG:25832 (UTM Zone 32N)
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:25832", always_xy=True)
     x, y = transformer.transform(lon, lat)
 
@@ -14,7 +13,6 @@ def get_soil_data(lat: float, lon: float):
     i = j = 128
     info_format = "text/html"
 
-    # Versuche mit zunehmender BBOX-Größe, bis max_radius erreicht oder Ergebnis vorhanden
     for bbox_halfsize in [12.5, 25, 50, 100, 200]:
         minx, miny = x - bbox_halfsize, y - bbox_halfsize
         maxx, maxy = x + bbox_halfsize, y + bbox_halfsize
@@ -38,6 +36,10 @@ def get_soil_data(lat: float, lon: float):
             response = requests.get(base_url, params=params, timeout=10)
             response.raise_for_status()
 
+            print(f"📍 BBOX Radius: {bbox_halfsize} m")
+            print("🔎 HTML-Antwort (Ausschnitt):")
+            print(response.text[:500])
+
             if "table" in response.text.lower() or "tr" in response.text.lower():
                 soup = BeautifulSoup(response.text, "html.parser")
                 rows = soup.find_all("tr")
@@ -48,10 +50,12 @@ def get_soil_data(lat: float, lon: float):
                         key = cols[0].text.strip()
                         value = cols[1].text.strip()
                         output[key] = value
-                output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
-                return output
+                if output:
+                    output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
+                    return output
 
         except requests.exceptions.RequestException as e:
-            continue  # beim Timeout oder Fehler → nächste BBOX versuchen
+            print(f"❌ Fehler bei BBOX {bbox_halfsize} m: {e}")
+            continue
 
     raise HTTPException(status_code=404, detail="Keine Bodendaten an dieser Position gefunden (auch nach mehrfacher Abfrage mit größerem Radius).")
