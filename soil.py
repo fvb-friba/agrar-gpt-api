@@ -1,7 +1,15 @@
 import requests
 from fastapi import HTTPException
 from pyproj import Transformer
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+import warnings
+import logging
+
+# Logging einrichten
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 def get_soil_data(lat: float, lon: float):
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:25832", always_xy=True)
@@ -35,21 +43,28 @@ def get_soil_data(lat: float, lon: float):
         try:
             response = requests.get(base_url, params=params, timeout=10)
             response.raise_for_status()
+            logger.info(f"BBOX Radius: {bbox_halfsize} m")
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            rows = soup.find_all("tr")
+            # Versuch mit XML-Parser
+            soup = BeautifulSoup(response.text, features="xml")
+
             output = {}
-            for row in rows:
-                cols = row.find_all("td")
-                if len(cols) == 2:
-                    key = cols[0].text.strip()
-                    value = cols[1].text.strip()
-                    output[key] = value
+            for elem in soup.find_all(["td", "th"]):
+                key = elem.get_text(strip=True)
+                val = elem.find_next_sibling("td")
+                if val:
+                    output[key] = val.get_text(strip=True)
+
+            # Fallback: alles aus dem Body extrahieren
+            if not output and soup.text.strip():
+                output["text"] = soup.text.strip()
+
             if output:
                 output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
                 return output
 
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"WMS Request fehlgeschlagen: {e}")
             continue
 
     raise HTTPException(status_code=404, detail="Keine Bodendaten an dieser Position gefunden.")
