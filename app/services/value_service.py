@@ -1,13 +1,17 @@
 import requests
+import os
 from typing import Optional, List
 from datetime import datetime
 from app.utils.logger import get_logger
 
 logger = get_logger("value")
 
-# ✅ Temporär im Code – später .env empfohlen
-GENESIS_USERNAME = "f.vonbraunschweig@friba-investment.com"
-GENESIS_API_KEY = "49efaedd2eb84800a34f4bca2045ea71"
+GENESIS_USERNAME = os.getenv("GENESIS_USERNAME")
+GENESIS_API_KEY = os.getenv("GENESIS_API_KEY")
+
+if not GENESIS_USERNAME or not GENESIS_API_KEY:
+    logger.error("GENESIS Zugangsdaten fehlen – Umgebungsvariablen prüfen.")
+    raise EnvironmentError("GENESIS API-Zugang nicht gesetzt")
 
 GENESIS_BASE_URL = "https://www-genesis.destatis.de/genesisWS/rest/2020/data"
 TABLE_CODE = "61241-01-01-4-B"  # Kaufwerte landw. Grundstücke
