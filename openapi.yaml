@@ -27,4 +27,18 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                properties:
+                  BEZEICHNUNG:
+                    type: string
+                    nullable: true
+                  LEITBODEN:
+                    type: string
+                    nullable: true
+                  AUSGANGSGESTEIN:
+                    type: string
+                    nullable: true
+                  GLEICHHEIT:
+                    type: string
+                    nullable: true
+                  quelle:
+                    type: string
