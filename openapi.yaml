@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – INSPIRE Soil
+  title: Agrar GPT API – BÜK3000 Soil (Shapefile)
   version: 1.0.1
 servers:
   - url: https://agrar-gpt-api.onrender.com
@@ -8,7 +8,7 @@ paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Get soil information from INSPIRE Soil WFS (Germany)
+      summary: Get soil unit information from BÜK3000 shapefile
       parameters:
         - in: query
           name: lat
@@ -22,19 +22,25 @@ paths:
             type: number
       responses:
         '200':
-          description: Soil data response
+          description: Soil unit from BÜK3000 shapefile
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  soil_unit:
+                  bodenname:
                     type: string
                     nullable: true
-                  parent_material:
+                  beschreibung:
                     type: string
                     nullable: true
-                  land_use:
+                  leitboden:
+                    type: string
+                    nullable: true
+                  begleitbo:
+                    type: string
+                    nullable: true
+                  ausgangsmaterial:
                     type: string
                     nullable: true
                   quelle:

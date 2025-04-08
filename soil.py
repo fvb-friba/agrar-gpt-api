@@ -1,54 +1,50 @@
 import requests
+import geopandas as gpd
 from fastapi import HTTPException
 from pyproj import Transformer
-from xml.etree import ElementTree
+from shapely.geometry import Point
+from zipfile import ZipFile
+from io import BytesIO
+import os
+
+SHAPEFILE_URL = "https://download.bgr.de/bgr/Boden/BUEK3000/shp/buek3000_v21.zip"
+SHAPEFILE_DIR = "buek3000_shapefile"
+
+def download_and_extract_shapefile():
+    if not os.path.exists(SHAPEFILE_DIR):
+        print("🔽 Lade BÜK3000 Shapefile...")
+        r = requests.get(SHAPEFILE_URL)
+        r.raise_for_status()
+        with ZipFile(BytesIO(r.content)) as zip_ref:
+            zip_ref.extractall(SHAPEFILE_DIR)
+        print("✅ Shapefile entpackt.")
 
 def get_soil_data(lat: float, lon: float):
-    # Umwandlung WGS84 → ETRS89 / UTM32 (EPSG:25832)
-    transformer = Transformer.from_crs("EPSG:4326", "EPSG:25832", always_xy=True)
+    download_and_extract_shapefile()
+
+    shp_path = None
+    for file in os.listdir(SHAPEFILE_DIR):
+        if file.endswith(".shp"):
+            shp_path = os.path.join(SHAPEFILE_DIR, file)
+            break
+    if not shp_path:
+        raise HTTPException(status_code=500, detail="Shapefile nicht gefunden.")
+
+    gdf = gpd.read_file(shp_path)
+    transformer = Transformer.from_crs("EPSG:4326", gdf.crs.to_string(), always_xy=True)
     x, y = transformer.transform(lon, lat)
+    point = Point(x, y)
 
-    bbox_size = 25  # 25m Suchradius
-    minx, miny = x - bbox_size, y - bbox_size
-    maxx, maxy = x + bbox_size, y + bbox_size
+    match = gdf[gdf.geometry.contains(point)]
+    if match.empty:
+        return {"detail": "Keine Bodendaten für diese Koordinate gefunden."}
 
-    url = "https://sg.geodatenzentrum.de/wfs_inspire_boden"
-    params = {
-        "service": "WFS",
-        "version": "2.0.0",
-        "request": "GetFeature",
-        "typeNames": "de.bgr.boden.bodeneinheit",
-        "srsName": "EPSG:25832",
-        "bbox": f"{minx},{miny},{maxx},{maxy},EPSG:25832"
+    row = match.iloc[0]
+    return {
+        "bodenname": row.get("BODENNAME", None),
+        "beschreibung": row.get("BESCHREIBU", None),
+        "leitboden": row.get("LEITBODEN", None),
+        "begleitbo": row.get("BEGLEITBO", None),
+        "ausgangsmaterial": row.get("AUSGANGSMA", None),
+        "quelle": "BÜK3000 (Shapefile BGR)"
     }
-
-    try:
-        r = requests.get(url, params=params, timeout=10)
-        r.raise_for_status()
-
-        root = ElementTree.fromstring(r.content)
-        ns = {"gml": "http://www.opengis.net/gml/3.2"}
-        feature_members = root.findall(".//gml:featureMember", ns)
-
-        if not feature_members:
-            return {
-                "soil_unit": None,
-                "parent_material": None,
-                "land_use": None,
-                "quelle": "INSPIRE Soil WFS (keine Daten verfügbar)"
-            }
-
-        # Einfachste Extraktion: Beschreibung als Text
-        description = feature_members[0].find(".//{*}beschreibung")
-        material = feature_members[0].find(".//{*}ausgangsmaterial")
-        landuse = feature_members[0].find(".//{*}nutzung")
-
-        return {
-            "soil_unit": description.text if description is not None else None,
-            "parent_material": material.text if material is not None else None,
-            "land_use": landuse.text if landuse is not None else None,
-            "quelle": "INSPIRE Soil WFS"
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

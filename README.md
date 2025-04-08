@@ -1,12 +1,14 @@
-# INSPIRE Soil API-Endpunkt für AgrarGPT
+# BÜK3000 Soil API – Shapefile Version
 
 ## Endpunkt:
 GET /soil?lat=...&lon=...
 
 ## Quelle:
-INSPIRE Soil WFS (GDI-DE / BGR)
+BÜK3000 Shapefile (BGR, 1:3.000.000)
 
-## Ausgabe:
-- soil_unit (Bodeneinheit)
-- parent_material (Ausgangsmaterial)
-- land_use (Nutzung)
+## Felder:
+- bodenname
+- beschreibung
+- leitboden
+- begleitboden
+- ausgangsmaterial
