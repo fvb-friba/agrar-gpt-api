@@ -6,8 +6,7 @@ from app.utils.logger import get_logger
 
 logger = get_logger("value")
 
-GENESIS_USERNAME = os.getenv("GENESIS_USERNAME")
-GENESIS_API_KEY = os.getenv("GENESIS_API_KEY")
+GENESIS_USERNAME = os.getenv("GENESIS_API_KEY")
 
 if not GENESIS_USERNAME or not GENESIS_API_KEY:
     logger.error("GENESIS Zugangsdaten fehlen – Umgebungsvariablen prüfen.")
@@ -24,7 +23,6 @@ def fetch_value_data(ags: str) -> dict:
 
     params = {
         "username": GENESIS_USERNAME,
-        "password": GENESIS_API_KEY,
         "name": TABLE_CODE,
         "bereich": "allgemein",
         "format": "json",
