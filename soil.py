@@ -1,1 +1,1 @@
-# Inhalt von soil.py
+# WMS-Bodenabfrage logik placeholder

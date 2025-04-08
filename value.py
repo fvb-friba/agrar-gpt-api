@@ -1,1 +1,1 @@
-# Inhalt von value.py
+# GENESIS API logik placeholder

@@ -1,1 +1,1 @@
-# Inhalt von climate.py
+# OpenMeteo logik placeholder
