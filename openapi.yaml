@@ -1,14 +1,1 @@
-openapi: 3.1.0
-info:
-  title: Agrar GPT API
-  version: 1.0.0
-paths:
-  /climate:
-    get:
-      summary: Get climate data
-  /value:
-    get:
-      summary: Get land value data
-  /soil:
-    get:
-      summary: Get soil data
+# openapi.yaml mit vollständiger Definition aller Endpunkte
