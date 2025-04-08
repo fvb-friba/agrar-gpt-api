@@ -1,11 +1,12 @@
-# Agrar GPT API – mit echter Bodenanbindung (BGR)
+# Agrar GPT API – /soil-Endpunkt mit BÜK200-WMS
 
-## Endpunkt
-- `/soil?lat=...&lon=...`
+## Endpunkt:
+GET /soil?lat=...&lon=...
 
-## Quelle
-- BÜK200 & BODEN-DÜS via BGR WMS
+## Quelle:
+BGR WMS BÜK200 – via GetFeatureInfo mit HTML Parsing
 
-## Validierung
-- Fehleingaben (außerhalb Deutschlands) → 400
-- Kein Bodeneintrag an Punkt → 404
+## Ausgabe:
+- Bodenart
+- Textur
+- Bodenklasse

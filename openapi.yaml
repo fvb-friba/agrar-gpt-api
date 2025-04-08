@@ -1,82 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – Gesamtintegration
-  version: 1.5.0
+  title: Agrar GPT API – Boden via WMS
+  version: 1.6.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
-  /climate:
-    get:
-      operationId: getClimateData
-      summary: Get climate forecast and trend data (Open-Meteo)
-      parameters:
-        - in: query
-          name: lat
-          required: true
-          schema:
-            type: number
-        - in: query
-          name: lon
-          required: true
-          schema:
-            type: number
-      responses:
-        '200':
-          description: Climate data response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  temperature_avg:
-                    type: number
-                  temperature_min:
-                    type: number
-                  temperature_max:
-                    type: number
-                  precipitation_mm:
-                    type: number
-                  wind_speed_max:
-                    type: number
-                  sunshine_hours:
-                    type: number
-                  vegetation_days_estimate:
-                    type: integer
-                  trend:
-                    type: object
-                    properties:
-                      10y_temp_rise:
-                        type: number
-                      10y_precip_change:
-                        type: number
-  /value:
-    get:
-      operationId: getLandValue
-      summary: Get official land value by district name
-      parameters:
-        - in: query
-          name: landkreis
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Land value data from Destatis GENESIS API
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  landkreis:
-                    type: string
-                  preise_eur_ha:
-                    type: object
-                    additionalProperties:
-                      type: number
   /soil:
     get:
       operationId: getSoilData
-      summary: Get real soil data from BGR WMS
+      summary: Get soil information from BÜK200 WMS
       parameters:
         - in: query
           name: lat
@@ -90,7 +22,7 @@ paths:
             type: number
       responses:
         '200':
-          description: Soil data response
+          description: Soil response
           content:
             application/json:
               schema:
@@ -102,13 +34,9 @@ paths:
                     type: string
                   bodenklasse:
                     type: string
-                  ackerzahl:
-                    type: integer
-                  gruenlandzahl:
-                    type: integer
-                  bodenpunkte:
-                    type: integer
+                  quelle:
+                    type: string
         '400':
           description: Invalid coordinates
         '404':
-          description: No data at this location
+          description: No data found
