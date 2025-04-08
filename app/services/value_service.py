@@ -8,7 +8,7 @@ logger = get_logger("value")
 
 GENESIS_USERNAME = os.getenv("GENESIS_API_KEY")
 
-if not GENESIS_USERNAME or not GENESIS_API_KEY:
+if not GENESIS_USERNAME:
     logger.error("GENESIS Zugangsdaten fehlen – Umgebungsvariablen prüfen.")
     raise EnvironmentError("GENESIS API-Zugang nicht gesetzt")
 
