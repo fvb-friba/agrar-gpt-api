@@ -1,74 +1,14 @@
 openapi: 3.1.0
 info:
   title: Agrar GPT API
-  version: '1.0'
-servers:
-  - url: https://agrar-gpt-api.onrender.com
+  version: 1.0.0
 paths:
   /climate:
     get:
-      operationId: getClimateData
-      parameters:
-        - name: lat
-          in: query
-          required: true
-          schema:
-            type: number
-        - name: lon
-          in: query
-          required: true
-          schema:
-            type: number
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  temperature_avg:
-                    type: number
+      summary: Get climate data
   /value:
     get:
-      operationId: getValueData
-      parameters:
-        - name: blid
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  avg_price:
-                    type: number
+      summary: Get land value data
   /soil:
     get:
-      operationId: getSoilData
-      parameters:
-        - name: lat
-          in: query
-          required: true
-          schema:
-            type: number
-        - name: lon
-          in: query
-          required: true
-          schema:
-            type: number
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  bodenname:
-                    type: string
+      summary: Get soil data
