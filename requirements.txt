@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-requests
-bs4
-pyproj
-lxml
-python-dotenv
