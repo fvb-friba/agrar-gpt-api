@@ -9,7 +9,7 @@ def get_logger(module_name: str) -> logging.Logger:
     log_path = os.path.join(LOG_DIR, f"{module_name}.log")
 
     logger = logging.getLogger(module_name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     if not logger.handlers:
         handler = RotatingFileHandler(
