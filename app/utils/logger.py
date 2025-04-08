@@ -1,4 +1,4 @@
-import logging
+iimport logging
 import os
 from logging.handlers import RotatingFileHandler
 
@@ -6,7 +6,6 @@ LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 def get_logger(module_name: str) -> logging.Logger:
-    """Erstellt einen logger für das angegebene Modul mit rotierender Logdatei."""
     log_path = os.path.join(LOG_DIR, f"{module_name}.log")
 
     logger = logging.getLogger(module_name)
