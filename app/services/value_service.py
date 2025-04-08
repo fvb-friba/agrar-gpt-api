@@ -30,11 +30,12 @@ def fetch_value_data(ags: str) -> dict:
         "filter": "Kreisfreie Städte und Landkreise",
         "language": "de"
     }
-
+    
+    url = f"{GENESIS_BASE_URL}/table"
+    
     logger.debug(f"GENESIS Request URL: {url}")
     logger.debug(f"GENESIS Params: {params}")
 
-    url = f"{GENESIS_BASE_URL}/table"
     try:
         response = requests.get(url, params=params, timeout=15)
         logger.debug(f"GENESIS Response Text: {response.text[:500]}")
