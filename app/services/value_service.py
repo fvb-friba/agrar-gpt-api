@@ -31,9 +31,13 @@ def fetch_value_data(ags: str) -> dict:
         "language": "de"
     }
 
+    logger.debug(f"GENESIS Request URL: {url}")
+    logger.debug(f"GENESIS Params: {params}")
+
     url = f"{GENESIS_BASE_URL}/table"
     try:
         response = requests.get(url, params=params, timeout=15)
+        logger.debug(f"GENESIS Response Text: {response.text[:500]}")
         response.raise_for_status()
         data = response.json()
         logger.info(f"GENESIS Rückgabe OK – {len(data.get('Object', []))} Einträge")
