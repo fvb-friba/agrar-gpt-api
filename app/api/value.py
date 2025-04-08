@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from app.models.value_models import ValueRequest, ValueResponse, ValueYearData
-from app.services.value_service import fetch_value_data, resolve_ags_from_coords
+# NEU – keine Modell-Imports notwendig
+from fastapi import APIRouter, HTTPException, Query
+from app.services.value_service import fetch_land_value_by_regionalkey
+
 
 router = APIRouter()
 
