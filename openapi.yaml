@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – Soil BUEK200 WMS v2
-  version: 1.0.5
+  title: Agrar GPT API – Soil BUEK200 WMS v2 (Schema Fix)
+  version: 1.0.6
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
@@ -27,3 +27,23 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  BEZEICHNUNG:
+                    type: string
+                    nullable: true
+                  LEITBODEN:
+                    type: string
+                    nullable: true
+                  AUSGANGSGESTEIN:
+                    type: string
+                    nullable: true
+                  GLEICHHEIT:
+                    type: string
+                    nullable: true
+                  text:
+                    type: string
+                    nullable: true
+                  quelle:
+                    type: string
+                additionalProperties:
+                  type: string
