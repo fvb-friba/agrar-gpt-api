@@ -1,16 +1,8 @@
-# Agrar GPT API – Open-Meteo Vollintegration
+# Agrar GPT API – mit Echtzeit- und Trenddaten (Open-Meteo)
 
 ## Endpunkt
-- `/climate?lat=...&lon=...` → Liefert detaillierte 7-Tagesprognose über Open-Meteo
+- `/climate?lat=...&lon=...`
 
-## Rückgabe
-- Durchschnittstemperatur
-- Min/Max Temperatur
-- Niederschlagssumme
-- Sonnenscheindauer
-- Windgeschwindigkeit
-- Abschätzung Vegetationsperiode
-- Trenddaten (Platzhalter)
-
-## Beispiel
-`/climate?lat=53.1&lon=9.4`
+## Liefert
+- 7-Tage-Vorhersage (Temperatur, Niederschlag, Wind, Sonne)
+- Trenddaten (10 Jahre) aus Open-Meteo Reanalysis (ERA5)

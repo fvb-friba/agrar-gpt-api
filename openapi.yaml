@@ -1,14 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – Full Climate Data
-  version: 1.0.0
+  title: Agrar GPT API – Climate with Trends
+  version: 1.1.0
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
   /climate:
     get:
       operationId: getClimateData
-      summary: Get detailed real climate data (Open-Meteo)
+      summary: Get climate forecast and trend data (Open-Meteo)
       parameters:
         - in: query
           name: lat
@@ -22,7 +22,7 @@ paths:
             type: number
       responses:
         '200':
-          description: Full climate data
+          description: Climate forecast and trend data
           content:
             application/json:
               schema:
