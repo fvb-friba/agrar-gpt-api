@@ -1,70 +1,49 @@
 import requests
-from fastapi import HTTPException
+from bs4 import BeautifulSoup
 from pyproj import Transformer
-from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
-import warnings
 import logging
 
-# Logging einrichten
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+logger = logging.getLogger("soil")
 
 def get_soil_data(lat: float, lon: float):
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:25832", always_xy=True)
     x, y = transformer.transform(lon, lat)
 
-    base_url = "https://services.bgr.de/wms/boden/buek200/"
-    layer_name = "buek200"
-    width = height = 256
-    i = j = 128
-    info_format = "text/html"
+    radii = [12.5, 25, 50, 100, 200]
+    for radius in radii:
+        minx = x - radius
+        miny = y - radius
+        maxx = x + radius
+        maxy = y + radius
 
-    for bbox_halfsize in [12.5, 25, 50, 100, 200]:
-        minx, miny = x - bbox_halfsize, y - bbox_halfsize
-        maxx, maxy = x + bbox_halfsize, y + bbox_halfsize
-
-        params = {
-            "SERVICE": "WMS",
-            "VERSION": "1.3.0",
-            "REQUEST": "GetFeatureInfo",
-            "CRS": "EPSG:25832",
-            "BBOX": f"{minx},{miny},{maxx},{maxy}",
-            "WIDTH": str(width),
-            "HEIGHT": str(height),
-            "I": str(i),
-            "J": str(j),
-            "LAYERS": layer_name,
-            "QUERY_LAYERS": layer_name,
-            "INFO_FORMAT": info_format
-        }
+        bbox = f"{minx},{miny},{maxx},{maxy},EPSG:25832"
+        url = (
+            "https://services.bgr.de/wms/boden/buek200/"
+            "?service=WMS&version=1.3.0&request=GetFeatureInfo"
+            f"&CRS=EPSG:25832&BBOX={minx},{miny},{maxx},{maxy}"
+            f"&WIDTH=256&HEIGHT=256&I=128&J=128&INFO_FORMAT=text/html"
+            f"&LAYERS=buek200&QUERY_LAYERS=buek200"
+        )
 
         try:
-            response = requests.get(base_url, params=params, timeout=10)
+            response = requests.get(url, timeout=10)
             response.raise_for_status()
-            logger.info(f"BBOX Radius: {bbox_halfsize} m")
-
-            # Versuch mit XML-Parser
             soup = BeautifulSoup(response.text, features="xml")
 
-            output = {}
-            for elem in soup.find_all(["td", "th"]):
-                key = elem.get_text(strip=True)
-                val = elem.find_next_sibling("td")
-                if val:
-                    output[key] = val.get_text(strip=True)
+            logger.info(f"BBOX Radius: {radius} m")
+            logger.info(f"HTML-Antwort (Ausschnitt):\n{response.text[:400]}")
 
-            # Fallback: alles aus dem Body extrahieren
-            if not output and soup.text.strip():
-                output["text"] = soup.text.strip()
-
-            if output:
-                output["quelle"] = f"BGR WMS ({bbox_halfsize} m Radius)"
-                return output
-
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"WMS Request fehlgeschlagen: {e}")
+            text = soup.get_text(strip=True)
+            if text and "ServiceException" not in text:
+                return {
+                    "text": text,
+                    "quelle": f"BGR WMS ({radius} m Radius)"
+                }
+        except Exception as e:
+            logger.error(f"Fehler bei Radius {radius}: {e}")
             continue
 
-    raise HTTPException(status_code=404, detail="Keine Bodendaten an dieser Position gefunden.")
+    return {
+        "detail": "Keine Bodendaten an dieser Position gefunden."
+    }

@@ -1,49 +1,46 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – Soil BUEK200 WMS v2 (Schema Fix)
-  version: 1.0.6
-servers:
-  - url: https://agrar-gpt-api.onrender.com
+  title: Agrar GPT API
+  version: "1.0"
 paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Get soil data from BGR BUEK200 WMS
+      summary: Liefert Bodendaten
       parameters:
-        - in: query
-          name: lat
+        - name: lat
+          in: query
           required: true
           schema:
             type: number
-        - in: query
-          name: lon
+        - name: lon
+          in: query
           required: true
           schema:
             type: number
       responses:
         '200':
-          description: Soil data
+          description: Erfolgreiche Antwort
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  BEZEICHNUNG:
-                    type: string
-                    nullable: true
-                  LEITBODEN:
-                    type: string
-                    nullable: true
-                  AUSGANGSGESTEIN:
-                    type: string
-                    nullable: true
-                  GLEICHHEIT:
-                    type: string
-                    nullable: true
                   text:
                     type: string
                     nullable: true
                   quelle:
                     type: string
-                additionalProperties:
-                  type: string
+                required:
+                  - quelle
+        '404':
+          description: Keine Daten gefunden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                required:
+                  - detail

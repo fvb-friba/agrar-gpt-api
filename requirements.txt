@@ -1,5 +1,6 @@
 fastapi
 uvicorn
 requests
-pyproj
 beautifulsoup4
+lxml
+pyproj
