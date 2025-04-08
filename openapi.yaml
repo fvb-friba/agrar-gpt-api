@@ -1,14 +1,14 @@
 openapi: 3.1.0
 info:
-  title: Agrar GPT API – BÜK3000 Soil (Shapefile)
-  version: 1.0.1
+  title: Agrar GPT API – BGR Soil via WMS (mit dynamischem Radius)
+  version: 1.0.2
 servers:
   - url: https://agrar-gpt-api.onrender.com
 paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Get soil unit information from BÜK3000 shapefile
+      summary: Get soil data from BGR WMS with automatic BBOX scaling
       parameters:
         - in: query
           name: lat
@@ -22,26 +22,9 @@ paths:
             type: number
       responses:
         '200':
-          description: Soil unit from BÜK3000 shapefile
+          description: Soil data
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  bodenname:
-                    type: string
-                    nullable: true
-                  beschreibung:
-                    type: string
-                    nullable: true
-                  leitboden:
-                    type: string
-                    nullable: true
-                  begleitbo:
-                    type: string
-                    nullable: true
-                  ausgangsmaterial:
-                    type: string
-                    nullable: true
-                  quelle:
-                    type: string
+                additionalProperties: true

@@ -1,14 +1,12 @@
-# BÜK3000 Soil API – Shapefile Version
+# Soil API – BGR WMS mit dynamischer BBOX-Skalierung
 
 ## Endpunkt:
 GET /soil?lat=...&lon=...
 
-## Quelle:
-BÜK3000 Shapefile (BGR, 1:3.000.000)
+## Funktion:
+- Führt GetFeatureInfo-Anfragen mit zunehmend größerem Suchradius (BBOX) aus
+- Liefert Daten aus BGR BÜK200-WMS zurück
+- Gibt JSON-Objekt mit HTML-inhaltlich geparsten Bodenparametern zurück
 
-## Felder:
-- bodenname
-- beschreibung
-- leitboden
-- begleitboden
-- ausgangsmaterial
+## Quelle:
+https://services.bgr.de/wms/boden/buek200
