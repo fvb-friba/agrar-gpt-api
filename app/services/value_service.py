@@ -39,6 +39,13 @@ def fetch_value_data(ags: str) -> dict:
     try:
         response = requests.get(url, params=params, timeout=15)
         print(f"GENESIS Response Text: {response.text[:500]}")
+
+        # 🛡️ Fehlerseite (HTML) abfangen statt JSON
+        if "html" in response.text.lower():
+            logger.error("Destatis-Antwort enthielt HTML statt JSON – evtl. ungültiger AGS oder keine Daten verfügbar")
+            raise ValueError("Destatis-Antwort enthält kein JSON – evtl. ungültiger AGS oder kein Datensatz verfügbar")
+
+        
         response.raise_for_status()
         data = response.json()
         logger.info(f"GENESIS Rückgabe OK – {len(data.get('Object', []))} Einträge")
@@ -76,4 +83,4 @@ def fetch_value_data(ags: str) -> dict:
 def resolve_ags_from_coords(easting: float, northing: float) -> Optional[str]:
     logger.info(f"Simulierter AGS-Lookup für Koordinate: {easting}, {northing}")
     # 👉 Später ersetzen durch echten Geo-Service
-    return "05315"  # Beispiel: Duisburg
+    return "05312"  # Beispiel: Kleve
