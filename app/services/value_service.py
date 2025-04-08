@@ -31,7 +31,6 @@ def fetch_value_data(ags: str) -> dict:
         "startjahr": str(start_year),
         "endjahr": str(end_year),
         "regionalschluessel": ags,
-        "filter": "Kreisfreie Städte und Landkreise",
         "language": "de"
     }
     
