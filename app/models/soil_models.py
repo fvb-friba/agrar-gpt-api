@@ -5,6 +5,7 @@ class SoilRequest(BaseModel):
     northing: float = Field(..., description="Nordwert in EPSG:25832 (Meter)")
 
 class SoilResponse(BaseModel):
-    bkz: str
-    bez: str
+    legende: str
+    legendentext: str
+    profil_url: str
     raw_response: str
