@@ -1,6 +1,1 @@
-fastapi
-uvicorn
-requests
-beautifulsoup4
-lxml
-pyproj
+# Inhalt von requirements.txt
