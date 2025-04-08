@@ -1,12 +1,15 @@
-openapi: 3.1.0
+openapi: "3.1.0"
 info:
   title: Agrar GPT API
-  version: "1.0"
+  version: "1.0.0"
+servers:
+  - url: https://agrar-gpt-api.onrender.com
+    description: Deployment auf Render
 paths:
   /soil:
     get:
       operationId: getSoilData
-      summary: Liefert Bodendaten
+      summary: Abruf von Bodendaten auf Basis von Koordinaten
       parameters:
         - name: lat
           in: query
@@ -20,27 +23,29 @@ paths:
             type: number
       responses:
         '200':
-          description: Erfolgreiche Antwort
+          description: Erfolgreiche Antwort mit Bodendaten
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  text:
+                  bodenname:
+                    type: string
+                    nullable: true
+                  beschreibung:
+                    type: string
+                    nullable: true
+                  leitboden:
+                    type: string
+                    nullable: true
+                  begleitbo:
+                    type: string
+                    nullable: true
+                  ausgangsmaterial:
                     type: string
                     nullable: true
                   quelle:
                     type: string
-                required:
-                  - quelle
+                    nullable: true
         '404':
           description: Keine Daten gefunden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                required:
-                  - detail
