@@ -49,22 +49,26 @@ def fetch_land_value_by_regionalkey(regionalkey: str, start_year: int, end_year:
     logger.debug("CSV-Rohdaten empfangen. Starte Parsing...")
 
     years_data = []
+    zeilenzähler = 0
 
     try:
         csv_reader = csv.reader(StringIO(csv_text), delimiter=';')
         for row in csv_reader:
-            if len(row) >= 7 and row[2] == "Insgesamt" and row[3] == "Insgesamt":
-                try:
-                    year = int(row[0])
-                    raw_value = row[6].replace(".", "").replace(",", ".")
-                    value = float(raw_value) if raw_value else None
-                    years_data.append({"year": year, "value_eur_per_ha": value})
-                except ValueError as ve:
-                    logger.warning(f"Zeile konnte nicht geparst werden: {row} – {ve}")
-                    continue
+            zeilenzähler += 1
+            if len(row) >= 7:
+                logger.debug(f"Zeile {zeilenzähler}: {row[:8]}")
+                if "Insgesamt" in row[2] and "Insgesamt" in row[3]:
+                    try:
+                        year = int(row[0])
+                        raw_value = row[6].replace(".", "").replace(",", ".")
+                        value = float(raw_value) if raw_value else None
+                        years_data.append({"year": year, "value_eur_per_ha": value})
+                    except ValueError as ve:
+                        logger.warning(f"Fehler beim Parsen der Zeile {zeilenzähler}: {row} – {ve}")
+                        continue
 
         if not years_data:
-            raise ValueError("Keine gültigen Zeilen mit 'Insgesamt;Insgesamt' gefunden.")
+            raise ValueError("Keine gültigen Zeilen mit 'Insgesamt' gefunden.")
 
         logger.info(f"Erfolgreich {len(years_data)} Jahre verarbeitet.")
         return {
