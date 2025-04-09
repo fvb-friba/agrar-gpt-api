@@ -7,6 +7,7 @@ from typing import Optional, List
 class BonitaetRequest(BaseModel):
     easting: float
     northing: float
+    radius: Optional[float] = 50  # optionaler Suchpuffer, default bleibt wie bisher
 
 
 class BonitaetFeature(BaseModel):
