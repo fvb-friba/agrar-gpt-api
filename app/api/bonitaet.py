@@ -1,3 +1,4 @@
+# Datei: app/api/bonitaet.py
 
 from fastapi import APIRouter, HTTPException
 from app.models.bonitaet_models import BonitaetRequest, BonitaetResponse
@@ -8,7 +9,8 @@ router = APIRouter()
 @router.post("/bonitaet", response_model=BonitaetResponse)
 def get_bonitaet(request: BonitaetRequest):
     try:
-        result = fetch_bonitaet_data(request.easting, request.northing)
-        return BonitaetResponse(**result)
+        return fetch_bonitaet_data(request.easting, request.northing)
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
