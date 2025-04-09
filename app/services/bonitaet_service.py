@@ -55,19 +55,27 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
         }
 
         features = tree.findall(".//gml:featureMember", namespaces=ns)
+        logger.debug(f"Anzahl featureMember im Response: {len(features)}")
+
         if not features:
             logger.warning("Keine Bodenschätzungsdaten im Response gefunden.")
             raise HTTPException(status_code=404, detail="Keine Bodenschätzungsdaten im gewählten Bereich.")
 
         result = []
         for feature in features:
+            fachobjekt = feature.find(".//lbeg:L849", namespaces=ns)
             data = {}
-            for elem in feature.iter():
-                tag_clean = etree.QName(elem.tag).localname
-                if elem.text and elem.text.strip():
-                    data[tag_clean] = elem.text.strip()
-            if data:
-                result.append(data)
+            if fachobjekt is not None:
+                for elem in fachobjekt.iter():
+                    tag_clean = etree.QName(elem.tag).localname
+                    if elem.text and elem.text.strip():
+                        data[tag_clean] = elem.text.strip()
+                if data:
+                    result.append(data)
+
+        if not result:
+            logger.warning("Feature gefunden, aber keine verwertbaren Inhalte.")
+            raise HTTPException(status_code=404, detail="Bodenschätzungsdaten konnten nicht interpretiert werden.")
 
         logger.info(f"{len(result)} Bodendatensätze extrahiert.")
         return {"bonitaet": result}
