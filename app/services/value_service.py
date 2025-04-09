@@ -20,11 +20,11 @@ if not logger.hasHandlers():
 def fetch_land_value_by_regionalkey(regionalkey: str, start_year: int, end_year: int) -> Dict[str, Any]:
     """
     Holt Kaufpreise für landwirtschaftliche Grundstücke anhand eines Regionalschlüssels (Regierungsbezirk).
-    Nutzt die GENESIS-API (Tabelle 61521-0020).
+    Nutzt die GENESIS-API (Tabelle 61521-0020), extrahiert CSV aus JSON-Feld.
     """
 
     api_url = "https://www-genesis.destatis.de/genesisWS/rest/2020/data/table"
-    username = os.getenv("DESTASIS_API_KEY")  # API-Key als Benutzername
+    username = os.getenv("DESTASIS_API_KEY")
     if not username:
         logger.error("API-Key nicht gefunden (Umgebungsvariable 'DESTASIS_API_KEY')")
         raise ValueError("API-Key nicht gesetzt")
@@ -45,9 +45,15 @@ def fetch_land_value_by_regionalkey(regionalkey: str, start_year: int, end_year:
         logger.error(f"Fehlerhafte Antwort von Destatis API: {response.status_code} - {response.text}")
         raise RuntimeError(f"Destatis API Fehler: {response.status_code}")
 
-    csv_text = response.text
-    logger.debug("CSV-Rohdaten empfangen. Starte Parsing...")
+    try:
+        data = response.json()
+        csv_text = data["Object"]["Content"]
+        logger.debug("CSV-Inhalt erfolgreich aus JSON extrahiert.")
+    except Exception as e:
+        logger.exception("Fehler beim Parsen der JSON-Antwort von Destatis.")
+        raise RuntimeError("Antwort konnte nicht als JSON interpretiert werden.")
 
+    # Jetzt beginnt echtes CSV-Parsing
     years_data = []
     zeilenzähler = 0
 
