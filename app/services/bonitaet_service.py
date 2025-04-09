@@ -10,12 +10,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def fetch_bonitaet_data(easting: float, northing: float) -> dict:
+def fetch_bonitaet_data(easting: float, northing: float, radius: float = 50.0) -> dict:
     """
     Holt reale Bonitätsdaten (Bodenzahl, Ackerzahl, Klassifizierung etc.) aus dem WFS der LBEG.
+    Der Parameter `radius` bestimmt die Größe der BoundingBox.
     """
 
-    logger.info(f"Starte Bonitätsabfrage für Punkt: Easting={easting}, Northing={northing}")
+    logger.info(f"Starte Bonitätsabfrage für Punkt: Easting={easting}, Northing={northing}, Radius={radius}")
 
     wfs_url = "https://nibis.lbeg.de/net3/public/ogcsl.ashx"
     typename = "cls:L849"
@@ -24,12 +25,11 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
     output_format = "application/gml+xml; version=3.2"
     node_id = "1031"
 
-    # Dynamische Bounding Box (kleiner Puffer)
-    buffer = 50
-    minx = easting - buffer
-    maxx = easting + buffer
-    miny = northing - buffer
-    maxy = northing + buffer
+    # Dynamische Bounding Box mit einstellbarem Puffer
+    minx = easting - radius
+    maxx = easting + radius
+    miny = northing - radius
+    maxy = northing + radius
     bbox = f"{minx},{miny},{maxx},{maxy}"
 
     params = {
