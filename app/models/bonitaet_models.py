@@ -1,14 +1,22 @@
+# Datei: app/models/bonitaet_models.py
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+
 
 class BonitaetRequest(BaseModel):
     easting: float
     northing: float
 
-class BonitaetResponse(BaseModel):
-    bodenzahl: Optional[float]
-    ackerzahl: Optional[float]
-    ertragsmesszahl: Optional[float]
+
+class BonitaetFeature(BaseModel):
+    bodenzahl: Optional[int]
+    ackerzahl: Optional[int]
     kulturart: Optional[str]
+    area_qm: Optional[float]
+    update: Optional[str]
     quelle: str
+
+
+class BonitaetResponse(BaseModel):
+    bonitaet: List[BonitaetFeature]
