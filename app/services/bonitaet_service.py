@@ -4,6 +4,7 @@ import logging
 import requests
 from lxml import etree
 from io import BytesIO
+from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -56,7 +57,7 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
         features = tree.findall(".//gml:featureMember", namespaces=ns)
         if not features:
             logger.warning("Keine Bodenschätzungsdaten im Response gefunden.")
-            return {"message": "Keine Bodenschätzungsdaten im gewählten Bereich."}
+            raise HTTPException(status_code=404, detail="Keine Bodenschätzungsdaten im gewählten Bereich.")
 
         result = []
         for feature in features:
@@ -71,6 +72,14 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
         logger.info(f"{len(result)} Bodendatensätze extrahiert.")
         return {"bonitaet": result}
 
+    except requests.exceptions.RequestException as e:
+        logger.exception("WFS-Request fehlgeschlagen")
+        raise HTTPException(status_code=502, detail=f"WFS-Anfrage fehlgeschlagen: {str(e)}")
+
+    except etree.XMLSyntaxError as e:
+        logger.exception("XML-Parsing fehlgeschlagen")
+        raise HTTPException(status_code=500, detail=f"GML/XML-Parsing fehlgeschlagen: {str(e)}")
+
     except Exception as e:
-        logger.exception(f"WFS-Zugriff oder Parsing fehlgeschlagen: {str(e)}")
-        return {"error": f"WFS-Zugriff oder Parsing fehlgeschlagen: {str(e)}"}
+        logger.exception("Unbekannter Fehler bei Bonitätsabfrage")
+        raise HTTPException(status_code=500, detail=f"Interner Fehler: {str(e)}")
