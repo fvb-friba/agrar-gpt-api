@@ -1,12 +1,13 @@
 
+import fiona
 import geopandas as gpd
-from shapely.geometry import Point
+from shapely.geometry import Point, shape
 from pyproj import CRS
 from app.utils.logger import get_logger
 
 logger = get_logger("bonitaet")
 
-# WFS mit GML-Ausgabe und URL-encoded Formatparameter
+# URL mit korrekt kodiertem GML-Ausgabeformat
 NDS_WFS_GML_URL = (
     "https://nibis.lbeg.de/net3/public/ogcsl.ashx"
     "?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature"
@@ -20,18 +21,23 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
     point = Point(easting, northing)
 
     try:
-        # Umkreis für WFS-BBOX (Meter)
         buffer = 100
         bbox = (easting - buffer, northing - buffer, easting + buffer, northing + buffer)
+        bbox_str = ",".join(map(str, bbox))
+        query_url = NDS_WFS_GML_URL + f"&BBOX={bbox_str},EPSG:25832"
 
-        # GML laden mit geopandas + fiona
-        gdf = gpd.read_file(NDS_WFS_GML_URL, bbox=bbox, driver="GML")
-        gdf = gdf.set_crs(epsg=25832, allow_override=True)
-        logger.info(f"{len(gdf)} Bonitätsflächen empfangen.")
+        # Direkter Zugriff via Fiona (nicht pyogrio)
+        with fiona.open(query_url, driver="GML") as src:
+            features = [f for f in src]
 
+        if not features:
+            raise ValueError("Keine Bonitätsfläche im Zielbereich gefunden.")
+
+        gdf = gpd.GeoDataFrame.from_features(features, crs=25832)
         match = gdf[gdf.contains(point)]
+
         if match.empty:
-            raise ValueError("Kein Bodenschätzungswert an dieser Stelle verfügbar.")
+            raise ValueError("Punkt liegt außerhalb aller Bonitätsflächen.")
 
         row = match.iloc[0]
         return {
@@ -39,7 +45,7 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
             "ackerzahl": row.get("ACKERZ", None),
             "ertragsmesszahl": row.get("EMZ", None),
             "kulturart": row.get("KULTURART", None),
-            "quelle": "LBeg Niedersachsen – WFS cls:L849 (GML)"
+            "quelle": "LBeg Niedersachsen – WFS cls:L849 (Fiona-GML)"
         }
 
     except Exception as e:
