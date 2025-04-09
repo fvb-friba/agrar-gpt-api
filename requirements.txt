@@ -6,3 +6,4 @@ geopandas
 shapely
 fiona
 rtree
+lxml
