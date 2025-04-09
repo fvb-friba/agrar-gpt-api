@@ -3,3 +3,7 @@ uvicorn[standard]
 requests
 pyproj
 geopandas
+shapely
+fiona
+pyproj
+rtree
