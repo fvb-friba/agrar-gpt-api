@@ -6,13 +6,13 @@ from app.utils.logger import get_logger
 
 logger = get_logger("bonitaet")
 
-# WFS mit GML-Ausgabe
+# WFS mit GML-Ausgabe und URL-encoded Formatparameter
 NDS_WFS_GML_URL = (
     "https://nibis.lbeg.de/net3/public/ogcsl.ashx"
     "?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature"
     "&TYPENAMES=cls:L849"
     "&SRSNAME=EPSG:25832"
-    "&outputFormat=text/xml; subtype=gml/3.2"
+    "&outputFormat=text/xml;%20subtype=gml/3.2"
 )
 
 def fetch_bonitaet_data(easting: float, northing: float) -> dict:
