@@ -88,6 +88,10 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
         logger.exception("XML-Parsing fehlgeschlagen")
         raise HTTPException(status_code=500, detail=f"GML/XML-Parsing fehlgeschlagen: {str(e)}")
 
+    except HTTPException as e:
+        # Wichtig: explizit weiterreichen, damit FastAPI sie korrekt behandelt
+        raise e
+
     except Exception as e:
         logger.exception("Unbekannter Fehler bei Bonitätsabfrage")
         raise HTTPException(status_code=500, detail=f"Interner Fehler: {str(e)}")
