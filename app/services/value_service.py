@@ -4,7 +4,7 @@ import logging
 import requests
 import csv
 from io import StringIO
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def fetch_land_value_by_regionalkey(regionalkey: str, start_year: int, end_year:
     Nutzt die GENESIS-API (Tabelle 61521-0020).
     """
 
-    api_url = "https://www-genesis.destatis.de/genesisWS/rest/2020/data/tablefile"
+    api_url = "https://www-genesis.destatis.de/genesisWS/rest/2020/data/table"
     username = os.getenv("DESTASIS_API_KEY")  # API-Key als Benutzername
     if not username:
         logger.error("API-Key nicht gefunden (Umgebungsvariable 'DESTASIS_API_KEY')")
@@ -38,8 +38,8 @@ def fetch_land_value_by_regionalkey(regionalkey: str, start_year: int, end_year:
         "endyear": str(end_year)
     }
 
-    logger.info(f"Starte Abruf der Kaufpreise von {start_year} bis {end_year} für RBZ {regionalkey}")
-    response = requests.post(api_url, data=params)
+    logger.info(f"Starte GET-Abruf der Kaufpreise von {start_year} bis {end_year} für RBZ {regionalkey}")
+    response = requests.get(api_url, params=params)
 
     if not response.ok:
         logger.error(f"Fehlerhafte Antwort von Destatis API: {response.status_code} - {response.text}")
