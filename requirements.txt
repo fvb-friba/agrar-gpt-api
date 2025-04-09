@@ -5,5 +5,4 @@ pyproj
 geopandas
 shapely
 fiona
-pyproj
 rtree
