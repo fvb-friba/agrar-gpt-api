@@ -1,38 +1,36 @@
 
 import geopandas as gpd
 from shapely.geometry import Point
-from pyproj import CRS, Transformer
+from pyproj import CRS
 from app.utils.logger import get_logger
 
 logger = get_logger("bonitaet")
 
-# WFS-Zugang zu Niedersachsen – Priorität 1
+# Neuer, funktionierender WFS-Zugang für Niedersachsen
 NDS_WFS_URL = (
-    "https://www.geobasisdaten.niedersachsen.de/geobasisdaten"
-    "/geodienste/afis_bodenschaetzung_wfs"
+    "https://nibis.lbeg.de/net3/public/ogcsl.ashx"
     "?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature"
-    "&TYPENAMES=afis:BZB_Flaeche"
+    "&TYPENAMES=cls:L849"
+    "&SRSNAME=EPSG:25832"
     "&outputFormat=application/json"
 )
 
 CRS_25832 = CRS.from_epsg(25832)
-CRS_4326 = CRS.from_epsg(4326)
-transformer = Transformer.from_crs(CRS_25832, CRS_4326, always_xy=True)
 
 def fetch_bonitaet_data(easting: float, northing: float) -> dict:
-    logger.info(f"Starte Bonitätsabfrage für Koordinate (E:{easting}, N:{northing})")
-
-    # Umwandlung in WGS84 für WFS-Kompatibilität (falls nötig)
-    lon, lat = transformer.transform(easting, northing)
+    logger.info(f"Starte Bonitätsabfrage für (E:{easting}, N:{northing}) [EPSG:25832]")
     point = Point(easting, northing)
-    logger.debug(f"Koordinatentransformation WGS84: ({lat}, {lon})")
 
     try:
-        gdf = gpd.read_file(NDS_WFS_URL, bbox=(lon - 0.001, lat - 0.001, lon + 0.001, lat + 0.001))
-        gdf = gdf.to_crs(epsg=25832)
-        logger.info(f"{len(gdf)} Bonitätsflächen geladen.")
+        bbox_size = 100  # Meter
+        buffer_box = (easting - bbox_size, northing - bbox_size, easting + bbox_size, northing + bbox_size)
 
+        gdf = gpd.read_file(NDS_WFS_URL, bbox=buffer_box)
+        gdf = gdf.set_crs(epsg=25832, allow_override=True)
+
+        logger.info(f"{len(gdf)} Bonitätsflächen aus WFS geladen.")
         match = gdf[gdf.contains(point)]
+
         if match.empty:
             raise ValueError("Kein Bodenschätzungswert an dieser Stelle verfügbar.")
 
@@ -42,7 +40,7 @@ def fetch_bonitaet_data(easting: float, northing: float) -> dict:
             "ackerzahl": row.get("ACKERZ", None),
             "ertragsmesszahl": row.get("EMZ", None),
             "kulturart": row.get("KULTURART", None),
-            "quelle": "BZB Niedersachsen WFS"
+            "quelle": "LBeg Niedersachsen – WFS cls:L849"
         }
 
     except Exception as e:
