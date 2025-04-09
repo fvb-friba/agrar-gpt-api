@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/bonitaet", response_model=BonitaetResponse)
 def get_bonitaet(request: BonitaetRequest):
     try:
-        return fetch_bonitaet_data(request.easting, request.northing)
+        return fetch_bonitaet_data(request.easting, request.northing, request.radius)
     except HTTPException as e:
         raise e
     except Exception as e:
